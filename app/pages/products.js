@@ -65,7 +65,7 @@ export function renderProductsPage() {
 export function openProductModal(id = null, prefill = {}) {
   const { shipments } = getState();
   const product = id ? getState().products.find(p => p.id === id) : null;
-  const data = product || { name: '', image: '', quantity: 1, buyPrice: 0, shipPerUnit: 0, declaredPrice: 0, taxPerUnit: 0, packagingPerUnit: 0, sellPrice: 0, weight: 0, shipmentId: '', ...prefill };
+  const data = product || { name: '', image: '', quantity: 1, buyPrice: 0, shipPerUnit: 0, declaredPrice: 0, taxPerUnit: 0, packagingPerUnit: 0, sellPrice: 0, weight: 0, shipmentId: '', shipDomFixed: 0, rateIntlLb: 0, ...prefill };
 
   const sym = currencySymbol();
   const body = document.createElement('div');
@@ -90,8 +90,12 @@ export function openProductModal(id = null, prefill = {}) {
           ${shipments.map(s => `<option value="${s.id}" ${s.id === data.shipmentId ? 'selected' : ''}>${escapeHtml(s.code + ' · ' + s.name)}</option>`).join('')}
         </select>
       </label>
+      <div data-block="manualRates" style="display:none; grid-column: span 2; display:none; grid-template-columns:1fr 1fr; gap:12px;">
+        <label class="form-field"><span>Ship nội địa Mỹ / đơn vị (${sym})</span><div class="input-with-suffix"><input type="text" inputmode="decimal" data-f="shipDomFixed" autocomplete="off" value="${formatMoneyInput(+data.shipDomFixed || 0)}" placeholder="0"><b class="cur-suffix">${sym}</b></div></label>
+        <label class="form-field"><span>Ship US→VN / lb (${sym})</span><div class="input-with-suffix"><input type="text" inputmode="decimal" data-f="rateIntlLb" autocomplete="off" value="${formatMoneyInput(+data.rateIntlLb || 0)}" placeholder="0"><b class="cur-suffix">${sym}</b></div></label>
+      </div>
       <label class="form-field" style="grid-column: span 2"><span>Phí ship / đơn vị (${sym})</span><input type="text" inputmode="decimal" data-f="shipPerUnit" data-money value="${formatMoneyInput(+data.shipPerUnit || 0)}" placeholder="0"></label>
-      <div class="form-hint" id="shipAutoHint" style="display:none; grid-column: span 2"></div>
+      <div class="form-hint" data-block="shipAutoHint" style="display:none; grid-column: span 2"></div>
 
       <div class="form-section">
         <div class="form-section-title">Chi phí phụ &amp; giá bán</div>
@@ -101,38 +105,61 @@ export function openProductModal(id = null, prefill = {}) {
       <label class="form-field"><span>Giá khai báo (${sym})</span><input type="text" inputmode="decimal" data-f="declaredPrice" data-money value="${formatMoneyInput(+data.declaredPrice || 0)}" placeholder="0"></label>
       <label class="form-field"><span>Giá bán (${sym})</span><input type="text" inputmode="decimal" data-f="sellPrice" data-money value="${formatMoneyInput(+data.sellPrice || 0)}" placeholder="0"></label>
     </div>
-    <div class="form-hint">Lãi/đơn vị = Giá bán − Giá nhập − Ship − Thuế − Đóng gói. Nếu gán lô hàng, ship sẽ tự tính = <b>Trọng lượng × (Phí Mỹ + Phí quốc tế)</b>.</div>
+    <div class="form-hint">Lãi/đơn vị = Giá bán − Giá nhập − Ship − Thuế − Đóng gói. Ship tự tính = <b>Ship nội địa Mỹ + Cân nặng (lb) × Ship US→VN/lb</b>.</div>
   `;
 
   // Live-format every money input + the weight input.
   $$('input[data-money]', body).forEach(inp => attachNumberInput(inp));
   attachNumberInput($('input[data-f="weight"]', body));
+  attachNumberInput($('input[data-f="shipDomFixed"]', body));
+  attachNumberInput($('input[data-f="rateIntlLb"]', body));
 
-  // When a shipment is selected, auto-compute shipPerUnit from weight × rates,
-  // disable the manual ship field, and show a tip explaining the formula.
   const shipSel = $('select[data-f="shipmentId"]', body);
   const weightInp = $('input[data-f="weight"]', body);
   const shipInp = $('input[data-f="shipPerUnit"]', body);
-  const hint = $('#shipAutoHint', body);
+  const shipDomInp = $('input[data-f="shipDomFixed"]', body);
+  const rateIntlInp = $('input[data-f="rateIntlLb"]', body);
+  const manualRatesBlock = $('[data-block="manualRates"]', body);
+  const hint = $('[data-block="shipAutoHint"]', body);
 
   function syncShipFromShipment() {
     const sid = shipSel.value;
     const s = shipments.find(x => x.id === sid);
+    const w = parseNumber(weightInp.value);
     if (s) {
-      const w = parseNumber(weightInp.value);
+      // Linked to a shipment — use its rates
+      manualRatesBlock.style.display = 'none';
       const rate = (+s.usDomesticRate || 0) + (+s.intlRate || 0);
       const ship = w * rate;
       shipInp.value = formatMoneyInput(ship);
       shipInp.readOnly = true;
       hint.style.display = 'block';
-      hint.innerHTML = `Tự tính từ lô hàng: <b>${formatMoneyInput(w) || 0} lb × ${sym}${formatMoneyInput(rate) || 0}/lb = ${sym}${formatMoneyInput(ship) || 0}</b>. Bỏ chọn lô để nhập thủ công.`;
+      hint.innerHTML = `Tự tính từ lô hàng: <b>${formatMoneyInput(w)} lb × ${sym}${formatMoneyInput(rate)}/lb = ${sym}${formatMoneyInput(ship)}</b>. Bỏ chọn lô để nhập thủ công.`;
     } else {
-      shipInp.readOnly = false;
-      hint.style.display = 'none';
+      // No shipment — show manual rate fields
+      manualRatesBlock.style.display = 'grid';
+      const domFixed = parseNumber(shipDomInp.value);
+      const rateIntl = parseNumber(rateIntlInp.value);
+      if (w > 0 && rateIntl > 0) {
+        const intlShip = w * rateIntl;
+        const total = domFixed + intlShip;
+        shipInp.value = formatMoneyInput(total);
+        shipInp.readOnly = true;
+        hint.style.display = 'block';
+        const parts = [];
+        if (domFixed > 0) parts.push(`${sym}${formatMoneyInput(domFixed)} (nội địa)`);
+        parts.push(`${formatMoneyInput(w)} lb × ${sym}${formatMoneyInput(rateIntl)}/lb = ${sym}${formatMoneyInput(intlShip)}`);
+        hint.innerHTML = `Tự tính: <b>${parts.join(' + ')}</b> → tổng ${sym}${formatMoneyInput(total)}. Xoá phí/lb để nhập thủ công.`;
+      } else {
+        shipInp.readOnly = false;
+        hint.style.display = 'none';
+      }
     }
   }
   shipSel.addEventListener('change', syncShipFromShipment);
   weightInp.addEventListener('input', syncShipFromShipment);
+  shipDomInp.addEventListener('input', syncShipFromShipment);
+  rateIntlInp.addEventListener('input', syncShipFromShipment);
   syncShipFromShipment();
 
   // Handle file -> data URL.
@@ -159,6 +186,8 @@ export function openProductModal(id = null, prefill = {}) {
         weight: parseNumber(get('input[data-f="weight"]').value),
         shipmentId: get('select[data-f="shipmentId"]').value,
         buyPrice: parseNumber(get('input[data-f="buyPrice"]').value),
+        shipDomFixed: parseNumber(get('input[data-f="shipDomFixed"]').value),
+        rateIntlLb: parseNumber(get('input[data-f="rateIntlLb"]').value),
         shipPerUnit: parseNumber(get('input[data-f="shipPerUnit"]').value),
         taxPerUnit: parseNumber(get('input[data-f="taxPerUnit"]').value),
         packagingPerUnit: parseNumber(get('input[data-f="packagingPerUnit"]').value),

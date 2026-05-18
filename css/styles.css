@@ -273,6 +273,7 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
 }
 .calc-field > span { color: var(--text-2); font-size: 13px; }
+.calc-hint { font-size: 11px; color: var(--primary); margin-left: 4px; font-weight: 500; }
 .input-with-suffix {
   position: relative;
   display: flex;
@@ -280,10 +281,11 @@ a { color: inherit; text-decoration: none; }
   width: 100%;
   min-width: 0;
 }
-.input-with-suffix input {
+.input-with-suffix input,
+.form-field .input-with-suffix input {
   width: 100%;
   min-width: 0;
-  padding: 10px 36px 10px 12px;
+  padding: 10px 48px 10px 12px;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: #fff;
@@ -296,11 +298,17 @@ a { color: inherit; text-decoration: none; }
 .input-with-suffix input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,123,255,.12); }
 .input-with-suffix b {
   position: absolute;
-  right: 14px;
+  right: 12px;
   color: var(--text-3);
   font-weight: 500;
   pointer-events: none;
   font-size: 13px;
+  transition: opacity 0.1s;
+  white-space: nowrap;
+}
+/* Ẩn ký hiệu tiền khi ô trống (placeholder đang hiện) */
+.input-with-suffix input:placeholder-shown ~ b {
+  opacity: 0;
 }
 .calc-field-highlight .input-with-suffix input { border-color: var(--primary); background: var(--primary-soft); }
 .calc-result {
