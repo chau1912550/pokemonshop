@@ -1,0 +1,20 @@
+# Claude Code local files
+.claude/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Python cache (from devserver.py)
+__pycache__/
+*.pyc
+*.pyo
+
+# Build artifacts / backups
+*.log
+*.bak
+pokemonshop-backup-*.json

@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pokemon Shop - Dashboard lợi nhuận</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="24" height="24" rx="6" fill="#4F7BFF"/>
+            <circle cx="12" cy="12" r="6" fill="white"/>
+            <path d="M6 12h12" stroke="#4F7BFF" stroke-width="1.5"/>
+            <circle cx="12" cy="12" r="2" fill="#4F7BFF" stroke="white" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-name">Pokemon Shop</div>
+        </div>
+        <button class="brand-toggle" aria-label="Thu gọn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <nav class="nav">
+        <a class="nav-item active" data-route="dashboard" href="#dashboard">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M3 13l9-9 9 9M5 11v9a1 1 0 001 1h3v-6h6v6h3a1 1 0 001-1v-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Tổng quan</span>
+        </a>
+        <a class="nav-item" data-route="products" href="#products">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M3 7l9-4 9 4-9 4-9-4zM3 12l9 4 9-4M3 17l9 4 9-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Sản phẩm</span>
+        </a>
+        <a class="nav-item" data-route="shipments" href="#shipments">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M1 12h11v6H1zM12 8h5l4 4v6h-9V8zM5.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM16.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          <span>Lô hàng</span>
+        </a>
+        <a class="nav-item" data-route="expenses" href="#expenses">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Chi phí</span>
+        </a>
+        <a class="nav-item" data-route="orders" href="#orders">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M9 5H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2h-4M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 14h6M9 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Đơn hàng</span>
+        </a>
+        <a class="nav-item" data-route="reports" href="#reports">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M3 21h18M5 21V10m4 11V7m4 14V13m4 8V4m4 17v-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Báo cáo</span>
+        </a>
+        <a class="nav-item" data-route="settings" href="#settings">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Cài đặt</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="period-card">
+          <div class="period-card-head">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <span>Kỳ báo cáo</span>
+          </div>
+          <button class="period-card-value" id="sidebarPeriod">
+            <span id="sidebarPeriodLabel">01/05/2024 – 31/05/2024</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ============ MAIN ============ -->
+    <main class="main">
+      <!-- ===== DASHBOARD PAGE ===== -->
+      <section class="page" data-page="dashboard">
+        <header class="page-header">
+          <h1 class="page-title">Dashboard lợi nhuận shop Pokemon</h1>
+          <div class="page-header-actions">
+            <button class="btn btn-light" id="headerPeriod">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <span id="headerPeriodLabel">01/05/2024 – 31/05/2024</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="btn btn-primary" id="btnExport">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Xuất báo cáo</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- KPI grid -->
+        <div class="kpi-grid" id="kpiGrid"></div>
+
+        <!-- Row: products table + quick calc -->
+        <div class="grid-2col">
+          <section class="card">
+            <header class="card-head">
+              <h2 class="card-title">Danh sách sản phẩm</h2>
+              <div class="card-head-actions">
+                <button class="btn btn-ghost btn-sm" id="btnAddProductDash">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                  Thêm sản phẩm
+                </button>
+              </div>
+            </header>
+            <div class="table-wrap">
+              <table class="table" id="dashProductsTable">
+                <thead>
+                  <tr>
+                    <th>Sản phẩm</th>
+                    <th class="num">SL</th>
+                    <th class="num">Giá nhập</th>
+                    <th class="num">Ship/đơn vị</th>
+                    <th class="num">Giá khai báo</th>
+                    <th class="num">Giá bán</th>
+                    <th class="num">Lãi/đơn vị</th>
+                    <th class="num">Tổng lãi</th>
+                  </tr>
+                </thead>
+                <tbody id="dashProductsBody"></tbody>
+                <tfoot id="dashProductsFoot"></tfoot>
+              </table>
+            </div>
+          </section>
+
+          <section class="card card-calc">
+            <header class="card-head">
+              <h2 class="card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 7h8M8 11h2M12 11h4M8 15h2M12 15h4M8 19h2M12 19h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                Bộ tính nhanh
+              </h2>
+              <button class="icon-btn" title="Đặt lại" id="btnResetCalc">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 109-9M3 4v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </header>
+            <div class="calc-grid">
+              <label class="calc-field"><span>Giá nhập</span><div class="input-with-suffix"><input type="text" data-calc="buy" inputmode="numeric"><b class="cur-suffix">đ</b></div></label>
+              <label class="calc-field"><span>Phí ship nội địa</span><div class="input-with-suffix"><input type="text" data-calc="shipDom" inputmode="numeric"><b class="cur-suffix">đ</b></div></label>
+              <label class="calc-field"><span>Phí ship quốc tế</span><div class="input-with-suffix"><input type="text" data-calc="shipIntl" inputmode="numeric"><b class="cur-suffix">đ</b></div></label>
+              <label class="calc-field"><span>Giá khai báo</span><div class="input-with-suffix"><input type="text" data-calc="declared" inputmode="numeric"><b class="cur-suffix">đ</b></div></label>
+              <label class="calc-field"><span>Thuế/Phí khác</span><div class="input-with-suffix"><input type="text" data-calc="tax" inputmode="numeric"><b class="cur-suffix">đ</b></div></label>
+              <label class="calc-field calc-field-highlight"><span>Giá bán dự kiến</span><div class="input-with-suffix"><input type="text" data-calc="sell" inputmode="numeric"><b class="cur-suffix">đ</b></div></label>
+            </div>
+            <div class="calc-result">
+              <div>
+                <div class="calc-result-label">Lãi dự kiến/đơn vị</div>
+                <div class="calc-result-value" id="calcProfit">0 đ</div>
+              </div>
+              <div>
+                <div class="calc-result-label">Biên lợi nhuận</div>
+                <div class="calc-result-value" id="calcMargin">0,00%</div>
+              </div>
+            </div>
+            <button class="btn btn-light btn-block" id="btnSaveCalcAsProduct">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Lưu thành sản phẩm
+            </button>
+          </section>
+        </div>
+
+        <!-- Row: charts -->
+        <div class="grid-3col">
+          <section class="card">
+            <header class="card-head"><h2 class="card-title">So sánh chi phí và doanh thu</h2></header>
+            <div class="chart-legend" id="legendCompare"></div>
+            <div class="chart-box"><canvas id="chartCompare"></canvas></div>
+          </section>
+
+          <section class="card">
+            <header class="card-head"><h2 class="card-title">Cơ cấu chi phí</h2></header>
+            <div class="donut-wrap">
+              <div class="chart-box donut-box"><canvas id="chartCost"></canvas>
+                <div class="donut-center">
+                  <div class="donut-center-value" id="donutTotalCost">0 đ</div>
+                  <div class="donut-center-label">Tổng chi phí</div>
+                </div>
+              </div>
+              <ul class="donut-legend" id="donutLegend"></ul>
+            </div>
+          </section>
+
+          <section class="card">
+            <header class="card-head"><h2 class="card-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.74V17h8v-2.26A7 7 0 0012 2z" stroke="#F59E0B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Thông tin nổi bật
+            </h2></header>
+            <div class="highlights" id="highlights"></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- ===== PRODUCTS PAGE ===== -->
+      <section class="page" data-page="products" hidden>
+        <header class="page-header">
+          <h1 class="page-title">Sản phẩm</h1>
+          <div class="page-header-actions">
+            <input type="search" id="searchProduct" placeholder="Tìm sản phẩm..." class="search-input" />
+            <button class="btn btn-primary" id="btnAddProduct">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Thêm sản phẩm
+            </button>
+          </div>
+        </header>
+        <section class="card">
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Sản phẩm</th>
+                  <th class="num">SL</th>
+                  <th class="num">Giá nhập</th>
+                  <th class="num">Ship/đv</th>
+                  <th class="num">Thuế/đv</th>
+                  <th class="num">Đóng gói/đv</th>
+                  <th class="num">Giá khai báo</th>
+                  <th class="num">Giá bán</th>
+                  <th class="num">Lãi/đv</th>
+                  <th class="num">Tổng lãi</th>
+                  <th class="num">Hành động</th>
+                </tr>
+              </thead>
+              <tbody id="productsBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <!-- ===== SHIPMENTS PAGE ===== -->
+      <section class="page" data-page="shipments" hidden>
+        <header class="page-header">
+          <h1 class="page-title">Lô hàng</h1>
+          <div class="page-header-actions">
+            <button class="btn btn-primary" id="btnAddShipment">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Thêm lô hàng
+            </button>
+          </div>
+        </header>
+        <div class="kpi-grid kpi-grid-4" id="shipmentKpis"></div>
+
+        <section class="card">
+          <header class="card-head"><h2 class="card-title">Tính nhanh phí ship theo cân nặng</h2></header>
+          <p class="muted">Nhập trọng lượng và giá ship/pound từ Mỹ → Việt Nam để xem tổng phí ship dự kiến. Hữu ích khi cân nhắc nhập một lô mới.</p>
+          <div class="grid-2col" style="margin-top: 12px;">
+            <div class="calc-grid">
+              <label class="calc-field"><span>Trọng lượng (lb)</span><div class="input-with-suffix"><input type="text" data-shipcalc="weight" inputmode="decimal" placeholder="0"><b>lb</b></div></label>
+              <label class="calc-field"><span>Phí ship nội địa Mỹ (/ lb)</span><div class="input-with-suffix"><input type="text" data-shipcalc="usRate" inputmode="decimal" placeholder="0"><b class="cur-suffix">đ</b></div></label>
+              <label class="calc-field"><span>Phí ship Mỹ → VN (/ lb)</span><div class="input-with-suffix"><input type="text" data-shipcalc="intlRate" inputmode="decimal" placeholder="3.5"><b class="cur-suffix">đ</b></div></label>
+              <label class="calc-field"><span>Số lượng sản phẩm trong lô</span><div class="input-with-suffix"><input type="text" data-shipcalc="quantity" inputmode="numeric" placeholder="1"><b>sp</b></div></label>
+            </div>
+            <div class="calc-result" style="grid-template-columns: 1fr 1fr 1fr;">
+              <div>
+                <div class="calc-result-label">Phí ship Mỹ</div>
+                <div class="calc-result-value" id="shipcalcUs">0</div>
+              </div>
+              <div>
+                <div class="calc-result-label">Phí ship quốc tế</div>
+                <div class="calc-result-value" id="shipcalcIntl">0</div>
+              </div>
+              <div>
+                <div class="calc-result-label">Tổng phí ship / đv</div>
+                <div class="calc-result-value" id="shipcalcPerUnit" style="color: var(--success)">0</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <header class="card-head"><h2 class="card-title">Danh sách lô hàng</h2></header>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Mã lô</th>
+                  <th>Tên</th>
+                  <th>Ngày</th>
+                  <th class="num">Ship Mỹ (/lb)</th>
+                  <th class="num">Ship US→VN (/lb)</th>
+                  <th class="num">SP trong lô</th>
+                  <th class="num">Tổng cân</th>
+                  <th class="num">Tổng phí ship</th>
+                  <th class="num">Hành động</th>
+                </tr>
+              </thead>
+              <tbody id="shipmentsBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <!-- ===== EXPENSES PAGE ===== -->
+      <section class="page" data-page="expenses" hidden>
+        <header class="page-header">
+          <h1 class="page-title">Chi phí</h1>
+          <div class="page-header-actions">
+            <button class="btn btn-primary" id="btnAddExpense">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Thêm chi phí
+            </button>
+          </div>
+        </header>
+        <div class="kpi-grid kpi-grid-4" id="expenseKpis"></div>
+        <section class="card">
+          <header class="card-head"><h2 class="card-title">Danh sách chi phí</h2></header>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Ngày</th>
+                  <th>Phân loại</th>
+                  <th>Mô tả</th>
+                  <th class="num">Số tiền</th>
+                  <th class="num">Hành động</th>
+                </tr>
+              </thead>
+              <tbody id="expensesBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <!-- ===== ORDERS PAGE ===== -->
+      <section class="page" data-page="orders" hidden>
+        <header class="page-header">
+          <h1 class="page-title">Đơn hàng</h1>
+          <div class="page-header-actions">
+            <button class="btn btn-primary" id="btnAddOrder">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Thêm đơn hàng
+            </button>
+          </div>
+        </header>
+        <div class="kpi-grid kpi-grid-4" id="orderKpis"></div>
+        <section class="card">
+          <header class="card-head"><h2 class="card-title">Danh sách đơn hàng</h2></header>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Mã đơn</th>
+                  <th>Ngày</th>
+                  <th>Khách hàng</th>
+                  <th>Sản phẩm</th>
+                  <th class="num">SL</th>
+                  <th class="num">Doanh thu</th>
+                  <th>Trạng thái</th>
+                  <th class="num">Hành động</th>
+                </tr>
+              </thead>
+              <tbody id="ordersBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <!-- ===== REPORTS PAGE ===== -->
+      <section class="page" data-page="reports" hidden>
+        <header class="page-header">
+          <h1 class="page-title">Báo cáo</h1>
+          <div class="page-header-actions">
+            <button class="btn btn-primary" id="btnExportReport">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Xuất Excel
+            </button>
+          </div>
+        </header>
+        <div class="kpi-grid" id="reportKpis"></div>
+        <div class="grid-2col">
+          <section class="card">
+            <header class="card-head"><h2 class="card-title">Top sản phẩm theo lãi</h2></header>
+            <div class="chart-box"><canvas id="chartTopProducts"></canvas></div>
+          </section>
+          <section class="card">
+            <header class="card-head"><h2 class="card-title">Cơ cấu doanh thu vs chi phí</h2></header>
+            <div class="chart-box"><canvas id="chartRevenueVsCost"></canvas></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- ===== SETTINGS PAGE ===== -->
+      <section class="page" data-page="settings" hidden>
+        <header class="page-header">
+          <h1 class="page-title">Cài đặt</h1>
+        </header>
+        <section class="card">
+          <header class="card-head"><h2 class="card-title">Cấu hình chung</h2></header>
+          <div class="form-grid">
+            <label class="form-field"><span>Tên shop</span><input type="text" id="settingShopName" /></label>
+            <label class="form-field"><span>Đơn vị tiền tệ</span>
+              <select id="settingCurrency">
+                <option value="VND">VND (đ) - Việt Nam Đồng</option>
+                <option value="USD">USD ($) - Đô la Mỹ</option>
+              </select>
+            </label>
+            <label class="form-field"><span>Tỉ lệ đóng gói mặc định (% giá nhập)</span><input type="number" step="0.1" id="settingPackagingRate" /></label>
+            <label class="form-field"><span>Tỉ lệ thuế mặc định (% giá khai báo)</span><input type="number" step="0.1" id="settingTaxRate" /></label>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" id="btnSaveSettings">Lưu</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <header class="card-head">
+            <h2 class="card-title">Phân loại chi phí</h2>
+            <div class="card-head-actions">
+              <button class="btn btn-light btn-sm" id="btnResetCategories" title="Khôi phục danh sách mặc định">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 109-9M3 4v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Khôi phục mặc định
+              </button>
+              <button class="btn btn-primary btn-sm" id="btnAddCategory">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                Thêm phân loại
+              </button>
+            </div>
+          </header>
+          <p class="muted">Thêm các loại chi phí phụ ngoài ship, thuế, đóng gói (ví dụ: marketing, lương nhân viên, thuê kho...). Mỗi loại sẽ hiện trên dropdown khi thêm chi phí và trong biểu đồ cơ cấu.</p>
+          <div class="table-wrap">
+            <table class="table" id="categoryTable">
+              <thead>
+                <tr>
+                  <th style="width:60px">Màu</th>
+                  <th>Tên phân loại</th>
+                  <th>Khoá (key)</th>
+                  <th class="num">Hành động</th>
+                </tr>
+              </thead>
+              <tbody id="categoryBody"></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="card">
+          <header class="card-head"><h2 class="card-title">Sao lưu &amp; Khôi phục</h2></header>
+          <p class="muted">Toàn bộ dữ liệu được lưu trên trình duyệt (localStorage). Hãy backup định kỳ.</p>
+          <div class="form-actions">
+            <button class="btn btn-light" id="btnExportJson">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Xuất dữ liệu (JSON)
+            </button>
+            <label class="btn btn-light">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Nhập dữ liệu (JSON)
+              <input type="file" id="btnImportJson" accept="application/json" hidden />
+            </label>
+            <button class="btn btn-danger" id="btnClearData">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a2 2 0 012-2h2a2 2 0 012 2v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Xoá toàn bộ dữ liệu
+            </button>
+          </div>
+        </section>
+
+        <section class="card">
+          <header class="card-head"><h2 class="card-title">Dữ liệu mẫu</h2></header>
+          <p class="muted">Tải bộ dữ liệu mẫu để xem dashboard đã được điền sẵn. Sẽ ghi đè dữ liệu hiện tại.</p>
+          <div class="form-actions">
+            <button class="btn btn-primary" id="btnLoadSample">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Tải dữ liệu mẫu
+            </button>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <!-- ============ MODAL ============ -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-dialog" role="dialog" aria-modal="true">
+      <header class="modal-head">
+        <h3 id="modalTitle">Tiêu đề</h3>
+        <button class="icon-btn" data-close aria-label="Đóng">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </header>
+      <div class="modal-body" id="modalBody"></div>
+      <footer class="modal-foot">
+        <button class="btn btn-light" data-close>Huỷ</button>
+        <button class="btn btn-primary" id="modalSubmit">Lưu</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" hidden></div>
+
+  <script type="module" src="app/app.js"></script>
+</body>
+</html>
