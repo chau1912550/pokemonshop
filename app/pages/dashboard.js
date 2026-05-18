@@ -166,6 +166,8 @@ function readCalc() {
   return {
     buy: parseNumber($('input[data-calc="buy"]').value),
     shipDom: parseNumber($('input[data-calc="shipDom"]').value),
+    weightLb: parseNumber($('input[data-calc="weightLb"]').value),
+    ratePerLb: parseNumber($('input[data-calc="ratePerLb"]').value),
     shipIntl: parseNumber($('input[data-calc="shipIntl"]').value),
     declared: parseNumber($('input[data-calc="declared"]').value),
     tax: parseNumber($('input[data-calc="tax"]').value),
@@ -175,7 +177,17 @@ function readCalc() {
 
 function updateCalc() {
   const v = readCalc();
-  const profit = v.sell - v.buy - v.shipDom - v.shipIntl - v.tax;
+  const autoShipIntl = v.weightLb > 0 && v.ratePerLb > 0 ? v.weightLb * v.ratePerLb : 0;
+  const shipIntl = autoShipIntl > 0 ? autoShipIntl : v.shipIntl;
+  const hint = $('#calcShipIntlHint');
+  if (autoShipIntl > 0) {
+    hint.textContent = ` = ${v.weightLb} lb × ${fmtMoney(v.ratePerLb)}`;
+    $('input[data-calc="shipIntl"]').disabled = true;
+  } else {
+    hint.textContent = '';
+    $('input[data-calc="shipIntl"]').disabled = false;
+  }
+  const profit = v.sell - v.buy - v.shipDom - shipIntl - v.tax;
   const margin = v.sell > 0 ? (profit / v.sell) * 100 : 0;
   $('#calcProfit').textContent = fmtMoney(profit);
   $('#calcProfit').style.color = profit >= 0 ? 'var(--primary)' : 'var(--danger)';
@@ -188,7 +200,8 @@ export function initCalculator() {
     inp.addEventListener('input', debounce(updateCalc, 80));
   });
   $('#btnResetCalc').addEventListener('click', () => {
-    $$('input[data-calc]').forEach(inp => { inp.value = ''; });
+    $$('input[data-calc]').forEach(inp => { inp.value = ''; inp.disabled = false; });
+    $('#calcShipIntlHint').textContent = '';
     updateCalc();
   });
   $('#btnSaveCalcAsProduct').addEventListener('click', () => {

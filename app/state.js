@@ -13,7 +13,7 @@ export const DEFAULT_CATEGORIES = [
 
 const defaultState = {
   shopName: 'Pokemon Shop',
-  currency: 'VND',
+  currency: 'USD',
   packagingRate: 8.2,
   taxRate: 8,
   period: { start: isoDate(monthStart()), end: isoDate(monthEnd()) },
