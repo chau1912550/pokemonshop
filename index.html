@@ -130,42 +130,6 @@
               </table>
             </div>
           </section>
-
-          <section class="card card-calc">
-            <header class="card-head">
-              <h2 class="card-title">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 7h8M8 11h2M12 11h4M8 15h2M12 15h4M8 19h2M12 19h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-                Bộ tính nhanh
-              </h2>
-              <button class="icon-btn" title="Đặt lại" id="btnResetCalc">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 109-9M3 4v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-            </header>
-            <div class="calc-grid">
-              <label class="calc-field"><span>Giá nhập</span><div class="input-with-suffix"><input type="text" data-calc="buy" inputmode="numeric"><b class="cur-suffix">đ</b></div></label>
-              <label class="calc-field"><span>Ship nội địa Mỹ (cố định)</span><div class="input-with-suffix"><input type="text" data-calc="shipDom" inputmode="numeric"><b class="cur-suffix">đ</b></div></label>
-              <label class="calc-field"><span>Cân nặng (lb)</span><div class="input-with-suffix"><input type="text" data-calc="weightLb" inputmode="decimal" placeholder="0"><b>lb</b></div></label>
-              <label class="calc-field"><span>Ship US→VN / lb</span><div class="input-with-suffix"><input type="text" data-calc="ratePerLb" inputmode="decimal" placeholder="0"><b class="cur-suffix">đ</b></div></label>
-              <label class="calc-field"><span>Ship quốc tế (tự tính)<span id="calcShipIntlHint" class="calc-hint"></span></span><div class="input-with-suffix"><input type="text" data-calc="shipIntl" inputmode="numeric"><b class="cur-suffix">đ</b></div></label>
-              <label class="calc-field"><span>Giá khai báo</span><div class="input-with-suffix"><input type="text" data-calc="declared" inputmode="numeric"><b class="cur-suffix">đ</b></div></label>
-              <label class="calc-field"><span>Thuế/Phí khác</span><div class="input-with-suffix"><input type="text" data-calc="tax" inputmode="numeric"><b class="cur-suffix">đ</b></div></label>
-              <label class="calc-field calc-field-highlight"><span>Giá bán dự kiến</span><div class="input-with-suffix"><input type="text" data-calc="sell" inputmode="numeric"><b class="cur-suffix">đ</b></div></label>
-            </div>
-            <div class="calc-result">
-              <div>
-                <div class="calc-result-label">Lãi dự kiến/đơn vị</div>
-                <div class="calc-result-value" id="calcProfit">0 đ</div>
-              </div>
-              <div>
-                <div class="calc-result-label">Biên lợi nhuận</div>
-                <div class="calc-result-value" id="calcMargin">0,00%</div>
-              </div>
-            </div>
-            <button class="btn btn-light btn-block" id="btnSaveCalcAsProduct">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-              Lưu thành sản phẩm
-            </button>
-          </section>
         </div>
 
         <!-- Row: charts -->

@@ -161,63 +161,6 @@ export function renderDashProductsTable() {
   });
 }
 
-// ============ Quick calculator ============
-function readCalc() {
-  return {
-    buy: parseNumber($('input[data-calc="buy"]').value),
-    shipDom: parseNumber($('input[data-calc="shipDom"]').value),
-    weightLb: parseNumber($('input[data-calc="weightLb"]').value),
-    ratePerLb: parseNumber($('input[data-calc="ratePerLb"]').value),
-    shipIntl: parseNumber($('input[data-calc="shipIntl"]').value),
-    declared: parseNumber($('input[data-calc="declared"]').value),
-    tax: parseNumber($('input[data-calc="tax"]').value),
-    sell: parseNumber($('input[data-calc="sell"]').value),
-  };
-}
-
-function updateCalc() {
-  const v = readCalc();
-  const autoShipIntl = v.weightLb > 0 && v.ratePerLb > 0 ? v.weightLb * v.ratePerLb : 0;
-  const shipIntl = autoShipIntl > 0 ? autoShipIntl : v.shipIntl;
-  const hint = $('#calcShipIntlHint');
-  if (autoShipIntl > 0) {
-    hint.textContent = ` = ${v.weightLb} lb × ${fmtMoney(v.ratePerLb)}`;
-    $('input[data-calc="shipIntl"]').disabled = true;
-  } else {
-    hint.textContent = '';
-    $('input[data-calc="shipIntl"]').disabled = false;
-  }
-  const profit = v.sell - v.buy - v.shipDom - shipIntl - v.tax;
-  const margin = v.sell > 0 ? (profit / v.sell) * 100 : 0;
-  $('#calcProfit').textContent = fmtMoney(profit);
-  $('#calcProfit').style.color = profit >= 0 ? 'var(--primary)' : 'var(--danger)';
-  $('#calcMargin').textContent = fmtPct(margin);
-}
-
-export function initCalculator() {
-  $$('input[data-calc]').forEach(inp => {
-    attachNumberInput(inp);
-    inp.addEventListener('input', debounce(updateCalc, 80));
-  });
-  $('#btnResetCalc').addEventListener('click', () => {
-    $$('input[data-calc]').forEach(inp => { inp.value = ''; inp.disabled = false; });
-    $('#calcShipIntlHint').textContent = '';
-    updateCalc();
-  });
-  $('#btnSaveCalcAsProduct').addEventListener('click', () => {
-    const v = readCalc();
-    openProductModal(null, {
-      buyPrice: v.buy,
-      shipPerUnit: v.shipDom + v.shipIntl,
-      declaredPrice: v.declared,
-      taxPerUnit: v.tax,
-      packagingPerUnit: 0,
-      sellPrice: v.sell,
-      quantity: 1,
-    });
-  });
-  updateCalc();
-}
 
 // ============ Charts ============
 export function renderCharts() {
@@ -486,7 +429,6 @@ export function renderDashboard() {
 }
 
 export function initDashboard() {
-  initCalculator();
   $('#btnAddProductDash').addEventListener('click', () => openProductModal(null));
   renderDashboard();
 }
