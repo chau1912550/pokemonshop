@@ -10,6 +10,7 @@ import { initExpenses, renderExpensesPage } from './pages/expenses.js';
 import { initOrders, renderOrdersPage } from './pages/orders.js';
 import { initReports, renderReportsPage, exportExcel } from './pages/reports.js';
 import { initSettings, renderSettingsPage } from './pages/settings.js';
+import { initNotebook, renderNotebookPage } from './pages/notebook.js';
 
 const PAGES = {
   dashboard: renderDashboard,
@@ -18,6 +19,7 @@ const PAGES = {
   expenses: renderExpensesPage,
   orders: renderOrdersPage,
   reports: renderReportsPage,
+  notebook: renderNotebookPage,
   settings: renderSettingsPage,
 };
 
@@ -140,6 +142,7 @@ function init() {
   initExpenses();
   initOrders();
   initReports();
+  initNotebook();
   initSettings();
 
   // Re-render whenever state changes — every page re-renders on demand from getState().

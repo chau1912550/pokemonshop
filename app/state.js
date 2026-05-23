@@ -26,6 +26,9 @@ const defaultState = {
   // (domestic US ship) → forwarder → Vietnam (international ship).
   shipments: [],
   categories: DEFAULT_CATEGORIES.map(c => ({ ...c })),
+  // Notebooks: free-form scratchpad pages. Each has { id, name, rows[] }
+  // where each row has { id, name, amount, type ('+' | '-') }.
+  notebooks: [],
 };
 
 function monthStart(d = new Date()) { return new Date(d.getFullYear(), d.getMonth(), 1); }
@@ -43,6 +46,7 @@ function load() {
       merged.categories = DEFAULT_CATEGORIES.map(c => ({ ...c }));
     }
     if (!Array.isArray(merged.shipments)) merged.shipments = [];
+    if (!Array.isArray(merged.notebooks)) merged.notebooks = [];
     return merged;
   } catch (e) {
     console.warn('State load failed, using defaults', e);
@@ -190,6 +194,18 @@ function slugifyKey(s) {
     .replace(/đ/g, 'd')
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '');
+}
+
+// -------- Notebooks CRUD --------
+export function addNotebook(nb) {
+  // Spread nb AFTER the generated id so a caller-supplied id wins.
+  setState(s => ({ ...s, notebooks: [...(s.notebooks || []), { id: uuid(), ...nb }] }));
+}
+export function updateNotebook(id, patch) {
+  setState(s => ({ ...s, notebooks: (s.notebooks || []).map(n => n.id === id ? { ...n, ...patch } : n) }));
+}
+export function deleteNotebook(id) {
+  setState(s => ({ ...s, notebooks: (s.notebooks || []).filter(n => n.id !== id) }));
 }
 
 export const ORDER_STATUSES = [
