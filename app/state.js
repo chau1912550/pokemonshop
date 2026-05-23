@@ -133,6 +133,8 @@ export function deleteShipment(id) {
     shipments: s.shipments.filter(x => x.id !== id),
     // Detach products from the deleted shipment but keep the products.
     products: s.products.map(p => p.shipmentId === id ? { ...p, shipmentId: '' } : p),
+    // Detach expenses linked to the deleted shipment but keep the expenses.
+    expenses: s.expenses.map(e => e.shipmentId === id ? { ...e, shipmentId: '' } : e),
   }));
 }
 

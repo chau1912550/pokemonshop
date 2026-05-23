@@ -257,6 +257,8 @@
                   <th class="num">SP trong lô</th>
                   <th class="num">Tổng cân</th>
                   <th class="num">Tổng phí ship</th>
+                  <th class="num">Chi phí phụ</th>
+                  <th class="num">Tổng chi lô</th>
                   <th class="num">Hành động</th>
                 </tr>
               </thead>
@@ -279,7 +281,10 @@
         </header>
         <div class="kpi-grid kpi-grid-4" id="expenseKpis"></div>
         <section class="card">
-          <header class="card-head"><h2 class="card-title">Danh sách chi phí</h2></header>
+          <header class="card-head">
+            <h2 class="card-title">Danh sách chi phí</h2>
+          </header>
+          <div class="exp-filter-bar" id="expenseShipFilter"></div>
           <div class="table-wrap">
             <table class="table">
               <thead>
@@ -287,6 +292,7 @@
                   <th>Ngày</th>
                   <th>Phân loại</th>
                   <th>Mô tả</th>
+                  <th>Lô hàng</th>
                   <th class="num">Số tiền</th>
                   <th class="num">Hành động</th>
                 </tr>

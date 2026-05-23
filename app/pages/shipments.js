@@ -6,22 +6,26 @@ import {
 import { openModal } from '../modal.js';
 
 // Aggregate per-shipment stats so the table and KPIs share a single source.
-function shipmentStats(shipment, products) {
+function shipmentStats(shipment, products, expenses = []) {
   const items = products.filter(p => p.shipmentId === shipment.id);
   const totalWeight = items.reduce((s, p) => s + (+p.weight || 0) * (+p.quantity || 0), 0);
   const ratePerLb = (+shipment.usDomesticRate || 0) + (+shipment.intlRate || 0);
   const totalShipCost = totalWeight * ratePerLb;
   const totalUsShip = totalWeight * (+shipment.usDomesticRate || 0);
   const totalIntlShip = totalWeight * (+shipment.intlRate || 0);
-  return { items, totalWeight, ratePerLb, totalShipCost, totalUsShip, totalIntlShip };
+  // Sum all expenses linked to this shipment
+  const linkedExpenses = expenses.filter(e => e.shipmentId === shipment.id);
+  const extraCost = linkedExpenses.reduce((s, e) => s + (+e.amount || 0), 0);
+  const totalCost = totalShipCost + extraCost;
+  return { items, totalWeight, ratePerLb, totalShipCost, totalUsShip, totalIntlShip, extraCost, totalCost, linkedExpenses };
 }
 
 export function renderShipmentsPage() {
-  const { shipments, products } = getState();
+  const { shipments, products, expenses } = getState();
 
   // ===== KPIs =====
   const total = shipments.length;
-  const allStats = shipments.map(s => shipmentStats(s, products));
+  const allStats = shipments.map(s => shipmentStats(s, products, expenses));
   const totalWeight = allStats.reduce((acc, s) => acc + s.totalWeight, 0);
   const totalShipCost = allStats.reduce((acc, s) => acc + s.totalShipCost, 0);
   const totalUsShip = allStats.reduce((acc, s) => acc + s.totalUsShip, 0);
@@ -53,7 +57,7 @@ export function renderShipmentsPage() {
   // ===== Table =====
   const body = $('#shipmentsBody');
   if (!shipments.length) {
-    body.innerHTML = `<tr><td colspan="9"><div class="empty">
+    body.innerHTML = `<tr><td colspan="11"><div class="empty">
       <div class="empty-title">Chưa có lô hàng</div>
       <div class="empty-sub">Bấm "Thêm lô hàng" để bắt đầu — mỗi lô có riêng giá ship/lb.</div>
     </div></td></tr>`;
@@ -62,7 +66,7 @@ export function renderShipmentsPage() {
 
   const sorted = [...shipments].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   body.innerHTML = sorted.map(s => {
-    const st = shipmentStats(s, products);
+    const st = shipmentStats(s, products, expenses);
     return `
       <tr data-id="${s.id}">
         <td><code style="font-size:12px">${s.code}</code></td>
@@ -73,6 +77,12 @@ export function renderShipmentsPage() {
         <td class="num">${st.items.length}</td>
         <td class="num">${st.totalWeight.toFixed(2)} lb</td>
         <td class="num profit-cell">${fmtMoney(st.totalShipCost)}</td>
+        <td class="num ${st.extraCost > 0 ? 'profit-cell' : ''}">
+          ${st.extraCost > 0
+            ? `<span title="${st.linkedExpenses.length} khoản chi phí">${fmtMoney(st.extraCost)}</span>`
+            : `<span class="muted-dash">—</span>`}
+        </td>
+        <td class="num" style="font-weight:600">${fmtMoney(st.totalCost)}</td>
         <td class="num">
           <div class="row-actions">
             <button class="icon-btn act-edit" title="Sửa"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
