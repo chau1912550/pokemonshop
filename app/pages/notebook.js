@@ -23,6 +23,36 @@ function activeNb() {
   return getNbs().find(n => n.id === _activeId) || null;
 }
 
+// Compute the effective money value of every row, top-to-bottom.
+//   calc 'fixed'   → amount
+//   calc 'rate'    → weight (lb) × rate (per lb)
+//   calc 'percent' → base × percent%, where base = a specific row above
+//                    (baseRowId) or the sum of all rows above (baseRowId = '').
+// Percent rows can only reference rows ABOVE them (already computed), so there
+// are no circular references.
+function computeRows(rows) {
+  const out = [];
+  for (const r0 of rows) {
+    const r = { ...r0, calc: r0.calc || 'fixed' };
+    let effective = 0, base = 0;
+    if (r.calc === 'rate') {
+      effective = (+r.weight || 0) * (+r.rate || 0);
+    } else if (r.calc === 'percent') {
+      if (r.baseRowId) {
+        const br = out.find(x => x.id === r.baseRowId);
+        base = br ? br.effective : 0;
+      } else {
+        base = out.reduce((s, x) => s + x.effective, 0);
+      }
+      effective = base * ((+r.percent || 0) / 100);
+    } else {
+      effective = +r.amount || 0;
+    }
+    out.push({ ...r, effective, base });
+  }
+  return out;
+}
+
 // ─── Mutations ────────────────────────────────────────────────────────────────
 function createNotebook() {
   const id = uuid();
@@ -53,7 +83,9 @@ function addRow() {
   const rowId = uuid();
   // Set _focusRowId BEFORE updateNotebook because setState fires synchronously.
   _focusRowId = rowId;
-  updateNotebook(_activeId, { rows: [...(nb.rows || []), { id: rowId, name: '', amount: 0, type: '+' }] });
+  updateNotebook(_activeId, {
+    rows: [...(nb.rows || []), { id: rowId, name: '', type: '-', calc: 'fixed', amount: 0, percent: 0, baseRowId: '', weight: 0, rate: 0 }],
+  });
 }
 
 function patchRow(rowId, patch) {
@@ -100,10 +132,11 @@ export function renderNotebookPage() {
     return;
   }
 
-  // ── Totals ───────────────────────────────────────────────────────────────────
-  const rows   = nb?.rows || [];
-  const totalIn  = rows.filter(r => r.type === '+').reduce((s, r) => s + (+r.amount || 0), 0);
-  const totalOut = rows.filter(r => r.type === '-').reduce((s, r) => s + (+r.amount || 0), 0);
+  // ── Totals (from computed effective values) ────────────────────────────────
+  const rows     = nb?.rows || [];
+  const computed = computeRows(rows);
+  const totalIn  = computed.filter(r => r.type === '+').reduce((s, r) => s + r.effective, 0);
+  const totalOut = computed.filter(r => r.type === '-').reduce((s, r) => s + r.effective, 0);
   const net      = totalIn - totalOut;
 
   // ── Markup ───────────────────────────────────────────────────────────────────
@@ -136,12 +169,12 @@ export function renderNotebookPage() {
           <input class="nb-title-input" id="nbTitleInput" value="${escapeAttr(nb.name)}"
                  maxlength="60" placeholder="Tên sổ tay..." />
           <div class="nb-summary">
-            <span class="nb-sum-in">+&nbsp;${fmtMoney(totalIn)}</span>
+            <span class="nb-sum-in">Thu&nbsp;+${fmtMoney(totalIn)}</span>
             <span class="nb-sum-sep">&nbsp;·&nbsp;</span>
-            <span class="nb-sum-out">−&nbsp;${fmtMoney(totalOut)}</span>
+            <span class="nb-sum-out">Chi&nbsp;−${fmtMoney(totalOut)}</span>
             <span class="nb-sum-sep">&nbsp;·&nbsp;</span>
             <span class="nb-sum-net ${net >= 0 ? 'pos' : 'neg'}">
-              =&nbsp;${net < 0 ? '−' : ''}${fmtMoney(Math.abs(net))}
+              Còn lại&nbsp;${net < 0 ? '−' : ''}${fmtMoney(Math.abs(net))}
             </span>
           </div>
         </header>
@@ -151,39 +184,16 @@ export function renderNotebookPage() {
             <thead>
               <tr>
                 <th>Mô tả</th>
-                <th class="num" style="width:180px">Số tiền</th>
-                <th style="width:72px; text-align:center">Loại</th>
-                <th style="width:44px"></th>
+                <th style="width:118px">Kiểu</th>
+                <th style="width:236px">Cách tính</th>
+                <th class="num" style="width:128px">Thành tiền</th>
+                <th style="width:78px; text-align:center">Thu/Chi</th>
+                <th style="width:42px"></th>
               </tr>
             </thead>
             <tbody id="nbBody">
-              ${rows.length ? rows.map(r => `
-                <tr>
-                  <td>
-                    <input class="nb-cell nb-name-inp" data-rowid="${r.id}"
-                           value="${escapeAttr(r.name)}" placeholder="Tên khoản tiền..." />
-                  </td>
-                  <td class="num">
-                    <input class="nb-cell nb-amt-inp" data-rowid="${r.id}"
-                           value="${r.amount ? formatMoneyInput(+r.amount) : ''}"
-                           placeholder="0" inputmode="decimal" />
-                  </td>
-                  <td style="text-align:center">
-                    <button class="nb-type-btn ${r.type === '+' ? 'nb-in' : 'nb-out'}"
-                            data-rowid="${r.id}" data-toggletype>
-                      ${r.type === '+' ? '+' : '−'}
-                    </button>
-                  </td>
-                  <td style="text-align:center">
-                    <button class="icon-btn" data-rowid="${r.id}" data-delrow title="Xoá dòng">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                        <path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a2 2 0 012-2h2a2 2 0 012 2v2"
-                              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </button>
-                  </td>
-                </tr>`).join('') : `
-                <tr><td colspan="4">
+              ${computed.length ? computed.map((r, i) => rowMarkup(r, computed.slice(0, i))).join('') : `
+                <tr><td colspan="6">
                   <div class="empty">
                     <div class="empty-title">Sổ tay trống</div>
                     <div class="empty-sub">Nhấn "Thêm dòng" để bắt đầu ghi chép.</div>
@@ -200,13 +210,105 @@ export function renderNotebookPage() {
             </svg>
             Thêm dòng
           </button>
+          <span class="nb-footer-hint">Kiểu “%” tính theo dòng bạn chọn ở cột Cách tính · Kiểu “Cân × giá” = số pound × đơn giá/lb.</span>
         </div>
       </section>
       ` : ''}
     </div>`;
 
-  // ── Events ────────────────────────────────────────────────────────────────────
+  bindEvents(container, nb);
+}
 
+// Build one <tr>. `before` = computed rows above this one (for % base options).
+function rowMarkup(r, before) {
+  const calc = r.calc || 'fixed';
+  const sign = r.type === '-' ? '−' : '+';
+
+  // "Cách tính" cell content depends on calc type.
+  let calcCell = '';
+  if (calc === 'percent') {
+    const opts = [`<option value="">Tổng các dòng trên</option>`]
+      .concat(before.map(b => `<option value="${b.id}" ${b.id === r.baseRowId ? 'selected' : ''}>${escapeHtml(b.name || '(dòng chưa đặt tên)')}</option>`))
+      .join('');
+    calcCell = `
+      <div class="nb-calc-inline">
+        <input class="nb-mini nb-calc-inp" data-rowid="${r.id}" data-field="percent" data-type="${r.type}" data-base="${r.base}"
+               value="${r.percent ? formatMoneyInput(+r.percent) : ''}" placeholder="0" inputmode="decimal" />
+        <span class="nb-op">% của</span>
+        <select class="nb-base-sel" data-rowid="${r.id}" data-basesel>${opts}</select>
+      </div>`;
+  } else if (calc === 'rate') {
+    calcCell = `
+      <div class="nb-calc-inline">
+        <input class="nb-mini nb-calc-inp" data-rowid="${r.id}" data-field="weight" data-type="${r.type}"
+               value="${r.weight ? formatMoneyInput(+r.weight) : ''}" placeholder="0" inputmode="decimal" />
+        <span class="nb-op">lb ×</span>
+        <input class="nb-mini nb-calc-inp" data-rowid="${r.id}" data-field="rate" data-type="${r.type}"
+               value="${r.rate ? formatMoneyInput(+r.rate) : ''}" placeholder="0" inputmode="decimal" />
+        <span class="nb-op">/lb</span>
+      </div>`;
+  } else {
+    calcCell = `
+      <input class="nb-cell nb-calc-inp nb-amt-inp" data-rowid="${r.id}" data-field="amount" data-type="${r.type}"
+             value="${r.amount ? formatMoneyInput(+r.amount) : ''}" placeholder="0" inputmode="decimal" />`;
+  }
+
+  return `
+    <tr>
+      <td>
+        <input class="nb-cell nb-name-inp" data-rowid="${r.id}"
+               value="${escapeAttr(r.name)}" placeholder="Tên khoản tiền..." />
+      </td>
+      <td>
+        <select class="nb-kind-sel" data-rowid="${r.id}" data-kindsel>
+          <option value="fixed"   ${calc === 'fixed'   ? 'selected' : ''}>Số tiền</option>
+          <option value="percent" ${calc === 'percent' ? 'selected' : ''}>Phần trăm %</option>
+          <option value="rate"    ${calc === 'rate'    ? 'selected' : ''}>Cân × giá</option>
+        </select>
+      </td>
+      <td>${calcCell}</td>
+      <td class="num">
+        <span class="nb-eff ${r.type === '+' ? 'pos' : 'neg'}" data-effrow="${r.id}">${sign}${fmtMoney(r.effective)}</span>
+      </td>
+      <td style="text-align:center">
+        <button class="nb-tc-btn ${r.type === '+' ? 'nb-in' : 'nb-out'}" data-rowid="${r.id}" data-toggletype>
+          ${r.type === '+' ? 'Thu' : 'Chi'}
+        </button>
+      </td>
+      <td style="text-align:center">
+        <button class="icon-btn" data-rowid="${r.id}" data-delrow title="Xoá dòng">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a2 2 0 012-2h2a2 2 0 012 2v2"
+                  stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </td>
+    </tr>`;
+}
+
+// Recompute & repaint a single row's "Thành tiền" cell live (no full re-render,
+// so focus is preserved while the user types).
+function liveUpdateEff(container, inp) {
+  const rowId = inp.dataset.rowid;
+  const type  = inp.dataset.type || '-';
+  const field = inp.dataset.field;
+  const rowEl = inp.closest('tr');
+  let eff = 0;
+  if (field === 'amount') {
+    eff = parseNumber(inp.value);
+  } else if (field === 'percent') {
+    const base = +inp.dataset.base || 0;
+    eff = base * (parseNumber(inp.value) / 100);
+  } else if (field === 'weight' || field === 'rate') {
+    const w = parseNumber($('input[data-field="weight"]', rowEl)?.value);
+    const rt = parseNumber($('input[data-field="rate"]', rowEl)?.value);
+    eff = w * rt;
+  }
+  const cell = container.querySelector(`[data-effrow="${rowId}"]`);
+  if (cell) cell.textContent = (type === '-' ? '−' : '+') + fmtMoney(eff);
+}
+
+function bindEvents(container, nb) {
   // Switch tab
   $$('.nb-tab', container).forEach(tab => {
     tab.addEventListener('click', e => {
@@ -224,7 +326,6 @@ export function renderNotebookPage() {
       const found = getNbs().find(n => n.id === id);
       if (found && confirmAction(`Xoá sổ "${found.name}"? Tất cả dòng sẽ bị xoá.`)) {
         removeNb(id);
-        // subscribe in app.js will re-render after setState in removeNb
       }
     });
   });
@@ -258,20 +359,34 @@ export function renderNotebookPage() {
     });
   });
 
-  // Row: amount — format live, save on blur only when value actually changed
-  $$('.nb-amt-inp', container).forEach(inp => {
+  // Kind selector (Số tiền / % / Cân×giá)
+  $$('[data-kindsel]', container).forEach(sel => {
+    sel.addEventListener('change', () => patchRow(sel.dataset.rowid, { calc: sel.value }));
+  });
+
+  // Percent base selector
+  $$('[data-basesel]', container).forEach(sel => {
+    sel.addEventListener('change', () => patchRow(sel.dataset.rowid, { baseRowId: sel.value }));
+  });
+
+  // Calc number inputs (amount / percent / weight / rate)
+  // — format live, update the result cell live, save on blur.
+  $$('.nb-calc-inp', container).forEach(inp => {
     attachNumberInput(inp);
-    inp.addEventListener('blur', e => {
+    inp.addEventListener('input', () => liveUpdateEff(container, inp));
+    inp.addEventListener('blur', () => {
+      const field = inp.dataset.field;
       const row = (activeNb()?.rows || []).find(r => r.id === inp.dataset.rowid);
-      const newAmt = parseNumber(e.target.value);
-      if (row && newAmt !== (+row.amount || 0)) patchRow(inp.dataset.rowid, { amount: newAmt });
+      if (!row) return;
+      const val = parseNumber(inp.value);
+      if (val !== (+row[field] || 0)) patchRow(inp.dataset.rowid, { [field]: val });
     });
     inp.addEventListener('keydown', e => {
       if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
     });
   });
 
-  // Row: toggle +/−
+  // Toggle Thu/Chi
   $$('[data-toggletype]', container).forEach(btn => {
     btn.addEventListener('click', () => {
       const row = (activeNb()?.rows || []).find(r => r.id === btn.dataset.rowid);
@@ -279,7 +394,7 @@ export function renderNotebookPage() {
     });
   });
 
-  // Row: delete
+  // Delete row
   $$('[data-delrow]', container).forEach(btn => {
     btn.addEventListener('click', () => removeRow(btn.dataset.rowid));
   });

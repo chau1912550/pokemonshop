@@ -642,25 +642,53 @@ a { color: inherit; text-decoration: none; }
 .nb-table .nb-cell:hover  { background: var(--bg); }
 .nb-table .nb-cell:focus  { background: var(--primary-soft); }
 .nb-table .nb-amt-inp { text-align: right; font-variant-numeric: tabular-nums; }
+.nb-table td { vertical-align: middle; }
 
-/* +/− type toggle */
-.nb-type-btn {
-  width: 32px; height: 32px; border-radius: 50%;
-  border: 2px solid; font-size: 16px; font-weight: 700;
-  display: inline-flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: background .15s, color .15s;
-  line-height: 1;
+/* Kind selector (Số tiền / % / Cân×giá) */
+.nb-kind-sel {
+  width: 100%; border: 1px solid var(--border); border-radius: 7px;
+  background: var(--card); color: var(--text); font-size: 13px;
+  padding: 6px 8px; cursor: pointer;
 }
-.nb-type-btn.nb-in  { border-color: var(--success); color: var(--success); background: var(--success-bg); }
-.nb-type-btn.nb-out { border-color: var(--danger);  color: var(--danger);  background: #FEF2F2; }
-.nb-type-btn:hover  { filter: brightness(.93); }
+
+/* Inline calc inputs (percent / rate) */
+.nb-calc-inline { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.nb-op { color: var(--text-2); font-size: 13px; white-space: nowrap; }
+.nb-mini {
+  width: 64px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--card); color: var(--text); font-size: 14px;
+  padding: 5px 8px; text-align: right; font-variant-numeric: tabular-nums;
+  outline: none; transition: border-color .12s;
+}
+.nb-mini:focus { border-color: var(--primary); }
+.nb-base-sel {
+  flex: 1; min-width: 110px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--card); color: var(--text); font-size: 12px;
+  padding: 5px 6px; cursor: pointer;
+}
+
+/* Computed "Thành tiền" value */
+.nb-eff { font-weight: 700; font-variant-numeric: tabular-nums; font-size: 14px; }
+.nb-eff.pos { color: var(--success); }
+.nb-eff.neg { color: var(--text); }
+
+/* Thu/Chi toggle pill */
+.nb-tc-btn {
+  min-width: 56px; padding: 5px 12px; border-radius: 999px;
+  border: 1.5px solid; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: filter .15s; line-height: 1.2;
+}
+.nb-tc-btn.nb-in  { border-color: var(--success); color: var(--success); background: var(--success-bg); }
+.nb-tc-btn.nb-out { border-color: var(--danger);  color: var(--danger);  background: #FEF2F2; }
+.nb-tc-btn:hover  { filter: brightness(.95); }
 
 /* Footer */
 .nb-footer {
-  padding: 10px 16px 4px;
+  padding: 12px 16px 4px;
   border-top: 1px solid var(--border-2);
-  display: flex; align-items: center;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
 }
+.nb-footer-hint { color: var(--text-3); font-size: 12px; }
 
 /* ============ Responsive ============ */
 @media (max-width: 1280px) {
