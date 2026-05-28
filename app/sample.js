@@ -5,6 +5,8 @@ import { uuid, DEFAULT_CATEGORIES } from './state.js';
 export function buildSampleData() {
   const now = new Date();
   const ym = now.toISOString().slice(0, 7); // current month, eg "2026-05"
+  const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevYm = prev.toISOString().slice(0, 7); // previous month
 
   const products = [
     { id: uuid(), name: 'Chaos Rising ETB', image: '', quantity: 10, weight: 1.8,
@@ -48,14 +50,18 @@ export function buildSampleData() {
   // dashboard is built on). Lô #1 matches the money-notebook example:
   // 2890 + 16 + 60 + (3% × 2890 = 86.7) + (38lb × 4 = 152) = 3205.7
   const shipments = [
-    { id: uuid(), code: 'LH001', name: 'Lô tháng 5 - TCGplayer', date: `${ym}-03`,
+    { id: uuid(), code: 'LH001', name: 'Lô TCGplayer', date: `${ym}-03`, status: 'sold',
       purchaseCost: 2890, packagingCost: 16, domesticShip: 60,
       insurancePct: 3, weight: 38, intlRate: 4, sellPrice: 3800,
       notes: '20 ETB + 17 bundle' },
-    { id: uuid(), code: 'LH002', name: 'Lô tháng 5 - eBay', date: `${ym}-15`,
+    { id: uuid(), code: 'LH002', name: 'Lô eBay', date: `${ym}-15`, status: 'selling',
       purchaseCost: 1450, packagingCost: 10, domesticShip: 35,
       insurancePct: 3, weight: 18, intlRate: 4, sellPrice: 1950,
       notes: 'Premium collection boxes' },
+    { id: uuid(), code: 'LH003', name: 'Lô tháng trước', date: `${prevYm}-18`, status: 'sold',
+      purchaseCost: 2100, packagingCost: 14, domesticShip: 48,
+      insurancePct: 3, weight: 26, intlRate: 4, sellPrice: 2780,
+      notes: 'Lô đã hoàn tất tháng trước' },
   ];
 
   // Ship the canonical category set so the sample dataset always works

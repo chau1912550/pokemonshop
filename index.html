@@ -103,10 +103,19 @@
         <!-- KPI grid -->
         <div class="kpi-grid" id="kpiGrid"></div>
 
-        <!-- Shipments cost breakdown -->
+        <!-- Profit trend over months -->
         <section class="card">
           <header class="card-head">
-            <h2 class="card-title">Chi tiết lô hàng</h2>
+            <h2 class="card-title">Xu hướng theo tháng</h2>
+            <div class="chart-legend" id="legendTrend"></div>
+          </header>
+          <div class="chart-box"><canvas id="chartTrend"></canvas></div>
+        </section>
+
+        <!-- Shipments executive summary -->
+        <section class="card">
+          <header class="card-head">
+            <h2 class="card-title">Lô hàng</h2>
             <div class="card-head-actions">
               <button class="btn btn-ghost btn-sm" id="btnAddShipmentDash">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -119,14 +128,11 @@
               <thead>
                 <tr>
                   <th>Lô hàng</th>
-                  <th class="num">Nhập hàng</th>
-                  <th class="num">Đóng gói</th>
-                  <th class="num">Ship nội địa</th>
-                  <th class="num">Bảo hiểm</th>
-                  <th class="num">Ship quốc tế</th>
+                  <th>Trạng thái</th>
                   <th class="num">Giá vốn</th>
                   <th class="num">Giá bán</th>
                   <th class="num">Lợi nhuận</th>
+                  <th class="num">ROI</th>
                 </tr>
               </thead>
               <tbody id="dashShipmentsBody"></tbody>
@@ -245,6 +251,7 @@
                   <th>Mã lô</th>
                   <th>Tên</th>
                   <th>Ngày</th>
+                  <th>Trạng thái</th>
                   <th class="num">Nhập hàng</th>
                   <th class="num">Đóng gói</th>
                   <th class="num">Ship nội địa</th>
@@ -253,6 +260,7 @@
                   <th class="num">Giá vốn</th>
                   <th class="num">Giá bán</th>
                   <th class="num">Lợi nhuận</th>
+                  <th class="num">ROI</th>
                   <th class="num">Hành động</th>
                 </tr>
               </thead>

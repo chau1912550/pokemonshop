@@ -166,6 +166,17 @@ export const SHIPMENT_COST_KEYS = [
   { key: 'intl',      label: 'Ship quốc tế',  color: '#7C3AED' },
 ];
 
+// Lifecycle of a shipment, used to separate "realized" profit (đã bán hết)
+// from merely "projected" profit (đang về / đang bán).
+export const SHIPMENT_STATUSES = [
+  { key: 'incoming', label: 'Đang về',     cls: 'pill-shipped' },
+  { key: 'selling',  label: 'Đang bán',    cls: 'pill-pending' },
+  { key: 'sold',     label: 'Đã bán hết',  cls: 'pill-done' },
+];
+export function shipmentStatus(s) {
+  return SHIPMENT_STATUSES.find(x => x.key === (s.status || 'selling')) || SHIPMENT_STATUSES[1];
+}
+
 export function computeShipmentCosts(s = {}) {
   const purchase  = +s.purchaseCost  || 0;
   const packaging = +s.packagingCost || 0;
@@ -177,8 +188,9 @@ export function computeShipmentCosts(s = {}) {
   const landed    = purchase + packaging + domestic + insurance + intl;
   const sell      = +s.sellPrice || 0;
   const profit    = sell - landed;
-  const margin    = sell > 0 ? (profit / sell) * 100 : 0;
-  return { purchase, packaging, domestic, insurance, intl, weight, intlRate, landed, sell, profit, margin };
+  const margin    = sell > 0 ? (profit / sell) * 100 : 0;   // lãi trên giá bán
+  const roi       = landed > 0 ? (profit / landed) * 100 : 0; // lãi trên vốn (lời/vốn)
+  return { purchase, packaging, domestic, insurance, intl, weight, intlRate, landed, sell, profit, margin, roi };
 }
 
 // Show a toast for ~2s. Useful for "Saved" / "Deleted" feedback.

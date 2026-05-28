@@ -1,7 +1,7 @@
 import { getState, addShipment, updateShipment, deleteShipment } from '../state.js';
 import {
   $, $$, fmtMoney, fmtPct, fmtDateVN, parseNumber, attachNumberInput, toast, confirmAction,
-  currencySymbol, formatMoneyInput, debounce, computeShipmentCosts,
+  currencySymbol, formatMoneyInput, debounce, computeShipmentCosts, SHIPMENT_STATUSES, shipmentStatus,
 } from '../utils.js';
 import { openModal } from '../modal.js';
 
@@ -40,7 +40,7 @@ export function renderShipmentsPage() {
   // ===== Table =====
   const body = $('#shipmentsBody');
   if (!shipments.length) {
-    body.innerHTML = `<tr><td colspan="12"><div class="empty">
+    body.innerHTML = `<tr><td colspan="14"><div class="empty">
       <div class="empty-title">Chưa có lô hàng</div>
       <div class="empty-sub">Bấm "Thêm lô hàng" — mỗi lô nhập 5 khoản chi phí trực tiếp.</div>
     </div></td></tr>`;
@@ -50,11 +50,13 @@ export function renderShipmentsPage() {
   const sorted = [...shipments].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   body.innerHTML = sorted.map(s => {
     const c = computeShipmentCosts(s);
+    const st = shipmentStatus(s);
     return `
       <tr data-id="${s.id}">
         <td><code style="font-size:12px">${s.code}</code></td>
         <td>${escapeHtml(s.name || '')}</td>
         <td>${fmtDateVN(s.date)}</td>
+        <td><span class="pill ${st.cls}">${st.label}</span></td>
         <td class="num">${fmtMoney(c.purchase)}</td>
         <td class="num">${fmtMoney(c.packaging)}</td>
         <td class="num">${fmtMoney(c.domestic)}</td>
@@ -63,6 +65,7 @@ export function renderShipmentsPage() {
         <td class="num" style="font-weight:600">${fmtMoney(c.landed)}</td>
         <td class="num">${fmtMoney(c.sell)}</td>
         <td class="num profit-cell" style="color:${c.profit >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtMoney(c.profit)}</td>
+        <td class="num" style="font-weight:600; color:${c.roi >= 0 ? 'var(--success)' : 'var(--danger)'}">${c.sell > 0 ? fmtPct(c.roi) : '—'}</td>
         <td class="num">
           <div class="row-actions">
             <button class="icon-btn act-edit" title="Sửa"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -89,7 +92,7 @@ export function openShipmentModal(id = null) {
   const item = id ? getState().shipments.find(s => s.id === id) : null;
   const today = new Date().toISOString().slice(0, 10);
   const data = item || {
-    name: '', date: today,
+    name: '', date: today, status: 'selling',
     purchaseCost: 0, packagingCost: 0, domesticShip: 0,
     insurancePct: 0, weight: 0, intlRate: 0, sellPrice: 0, notes: '',
   };
@@ -101,8 +104,13 @@ export function openShipmentModal(id = null) {
       <div class="form-section"><div class="form-section-title">Thông tin lô</div></div>
       <label class="form-field" style="grid-column: span 2"><span>Tên lô hàng *</span>
         <input type="text" data-f="name" value="${escapeHtml(data.name)}" placeholder="Ví dụ: Lô tháng 5 - TCGplayer" required></label>
-      <label class="form-field" style="grid-column: span 2"><span>Ngày nhập</span>
+      <label class="form-field"><span>Ngày nhập</span>
         <input type="date" data-f="date" value="${data.date}"></label>
+      <label class="form-field"><span>Trạng thái</span>
+        <select data-f="status">
+          ${SHIPMENT_STATUSES.map(s => `<option value="${s.key}" ${s.key === (data.status || 'selling') ? 'selected' : ''}>${s.label}</option>`).join('')}
+        </select>
+      </label>
 
       <div class="form-section"><div class="form-section-title">Chi phí lô hàng</div></div>
       <label class="form-field"><span>1. Số tiền nhập hàng (${sym})</span>
@@ -172,6 +180,7 @@ export function openShipmentModal(id = null) {
       const payload = {
         name: $('input[data-f="name"]', body).value.trim(),
         date: $('input[data-f="date"]', body).value,
+        status: $('select[data-f="status"]', body).value,
         notes: $('textarea[data-f="notes"]', body).value.trim(),
         ...f,
       };
