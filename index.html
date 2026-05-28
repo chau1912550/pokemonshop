@@ -103,54 +103,47 @@
         <!-- KPI grid -->
         <div class="kpi-grid" id="kpiGrid"></div>
 
-        <!-- Row: products table + quick calc -->
+        <!-- Shipments cost breakdown -->
+        <section class="card">
+          <header class="card-head">
+            <h2 class="card-title">Chi tiết lô hàng</h2>
+            <div class="card-head-actions">
+              <button class="btn btn-ghost btn-sm" id="btnAddShipmentDash">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                Thêm lô hàng
+              </button>
+            </div>
+          </header>
+          <div class="table-wrap">
+            <table class="table" id="dashShipmentsTable">
+              <thead>
+                <tr>
+                  <th>Lô hàng</th>
+                  <th class="num">Nhập hàng</th>
+                  <th class="num">Đóng gói</th>
+                  <th class="num">Ship nội địa</th>
+                  <th class="num">Bảo hiểm</th>
+                  <th class="num">Ship quốc tế</th>
+                  <th class="num">Giá vốn</th>
+                  <th class="num">Giá bán</th>
+                  <th class="num">Lợi nhuận</th>
+                </tr>
+              </thead>
+              <tbody id="dashShipmentsBody"></tbody>
+              <tfoot id="dashShipmentsFoot"></tfoot>
+            </table>
+          </div>
+        </section>
+
+        <!-- Row: cost donut + highlights -->
         <div class="grid-2col">
           <section class="card">
-            <header class="card-head">
-              <h2 class="card-title">Danh sách sản phẩm</h2>
-              <div class="card-head-actions">
-                <button class="btn btn-ghost btn-sm" id="btnAddProductDash">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                  Thêm sản phẩm
-                </button>
-              </div>
-            </header>
-            <div class="table-wrap">
-              <table class="table" id="dashProductsTable">
-                <thead>
-                  <tr>
-                    <th>Sản phẩm</th>
-                    <th class="num">SL</th>
-                    <th class="num">Giá nhập</th>
-                    <th class="num">Ship/đơn vị</th>
-                    <th class="num">Giá khai báo</th>
-                    <th class="num">Giá bán</th>
-                    <th class="num">Lãi/đơn vị</th>
-                    <th class="num">Tổng lãi</th>
-                  </tr>
-                </thead>
-                <tbody id="dashProductsBody"></tbody>
-                <tfoot id="dashProductsFoot"></tfoot>
-              </table>
-            </div>
-          </section>
-        </div>
-
-        <!-- Row: charts -->
-        <div class="grid-3col">
-          <section class="card">
-            <header class="card-head"><h2 class="card-title">So sánh chi phí và doanh thu</h2></header>
-            <div class="chart-legend" id="legendCompare"></div>
-            <div class="chart-box"><canvas id="chartCompare"></canvas></div>
-          </section>
-
-          <section class="card">
-            <header class="card-head"><h2 class="card-title">Cơ cấu chi phí</h2></header>
+            <header class="card-head"><h2 class="card-title">Cơ cấu chi phí lô hàng</h2></header>
             <div class="donut-wrap">
               <div class="chart-box donut-box"><canvas id="chartCost"></canvas>
                 <div class="donut-center">
-                  <div class="donut-center-value" id="donutTotalCost">0 đ</div>
-                  <div class="donut-center-label">Tổng chi phí</div>
+                  <div class="donut-center-value" id="donutTotalCost">$0</div>
+                  <div class="donut-center-label">Tổng giá vốn</div>
                 </div>
               </div>
               <ul class="donut-legend" id="donutLegend"></ul>
@@ -252,13 +245,14 @@
                   <th>Mã lô</th>
                   <th>Tên</th>
                   <th>Ngày</th>
-                  <th class="num">Ship Mỹ (/lb)</th>
-                  <th class="num">Ship US→VN (/lb)</th>
-                  <th class="num">SP trong lô</th>
-                  <th class="num">Tổng cân</th>
-                  <th class="num">Tổng phí ship</th>
-                  <th class="num">Chi phí phụ</th>
-                  <th class="num">Tổng chi lô</th>
+                  <th class="num">Nhập hàng</th>
+                  <th class="num">Đóng gói</th>
+                  <th class="num">Ship nội địa</th>
+                  <th class="num">Bảo hiểm</th>
+                  <th class="num">Ship quốc tế</th>
+                  <th class="num">Giá vốn</th>
+                  <th class="num">Giá bán</th>
+                  <th class="num">Lợi nhuận</th>
                   <th class="num">Hành động</th>
                 </tr>
               </thead>

@@ -44,9 +44,23 @@ export function buildSampleData() {
     { id: uuid(), code: 'DH0005', date: `${ym}-25`, customerName: 'Vũ Mạnh E', productId: products[2].id, quantity: 3, revenue: 114, status: 'pending' },
   ];
 
+  // Shipments hold the 5 flat cost components entered directly (the model the
+  // dashboard is built on). Lô #1 matches the money-notebook example:
+  // 2890 + 16 + 60 + (3% × 2890 = 86.7) + (38lb × 4 = 152) = 3205.7
+  const shipments = [
+    { id: uuid(), code: 'LH001', name: 'Lô tháng 5 - TCGplayer', date: `${ym}-03`,
+      purchaseCost: 2890, packagingCost: 16, domesticShip: 60,
+      insurancePct: 3, weight: 38, intlRate: 4, sellPrice: 3800,
+      notes: '20 ETB + 17 bundle' },
+    { id: uuid(), code: 'LH002', name: 'Lô tháng 5 - eBay', date: `${ym}-15`,
+      purchaseCost: 1450, packagingCost: 10, domesticShip: 35,
+      insurancePct: 3, weight: 18, intlRate: 4, sellPrice: 1950,
+      notes: 'Premium collection boxes' },
+  ];
+
   // Ship the canonical category set so the sample dataset always works
   // even if the user previously deleted some defaults.
   const categories = DEFAULT_CATEGORIES.map(c => ({ ...c }));
 
-  return { products, expenses, orders, categories };
+  return { products, expenses, orders, categories, shipments };
 }

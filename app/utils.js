@@ -149,6 +149,38 @@ export function computeProductProfit(p, shipments = []) {
   return { profitPerUnit, totalProfit, margin, shipPerUnit: ship };
 }
 
+// ── Shipment (lô hàng) cost model ───────────────────────────────────────────────
+// A shipment is the central unit. It holds 5 flat cost components, entered
+// directly (like the money-notebook), plus an expected sell price:
+//   1. purchaseCost  — số tiền nhập hàng
+//   2. packagingCost — đóng gói
+//   3. domesticShip  — ship nội địa Mỹ (cố định)
+//   4. insurance     — bảo hiểm = insurancePct% × purchaseCost
+//   5. intlShip      — ship quốc tế = weight (lb) × intlRate (/lb)
+// landed = sum of the 5 · profit = sellPrice − landed.
+export const SHIPMENT_COST_KEYS = [
+  { key: 'purchase',  label: 'Nhập hàng',     color: '#4F7BFF' },
+  { key: 'packaging', label: 'Đóng gói',      color: '#14B8A6' },
+  { key: 'domestic',  label: 'Ship nội địa',  color: '#10B981' },
+  { key: 'insurance', label: 'Bảo hiểm',      color: '#F59E0B' },
+  { key: 'intl',      label: 'Ship quốc tế',  color: '#7C3AED' },
+];
+
+export function computeShipmentCosts(s = {}) {
+  const purchase  = +s.purchaseCost  || 0;
+  const packaging = +s.packagingCost || 0;
+  const domestic  = +s.domesticShip  || 0;
+  const insurance = purchase * ((+s.insurancePct || 0) / 100);
+  const weight    = +s.weight || 0;
+  const intlRate  = +s.intlRate || 0;
+  const intl      = weight * intlRate;
+  const landed    = purchase + packaging + domestic + insurance + intl;
+  const sell      = +s.sellPrice || 0;
+  const profit    = sell - landed;
+  const margin    = sell > 0 ? (profit / sell) * 100 : 0;
+  return { purchase, packaging, domestic, insurance, intl, weight, intlRate, landed, sell, profit, margin };
+}
+
 // Show a toast for ~2s. Useful for "Saved" / "Deleted" feedback.
 let toastTimer;
 export function toast(msg) {

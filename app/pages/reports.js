@@ -1,5 +1,5 @@
 import { getState, getCategories } from '../state.js';
-import { $, fmtMoney, fmtPct, fmtShort, computeProductProfit } from '../utils.js';
+import { $, fmtMoney, fmtPct, fmtShort, computeProductProfit, computeShipmentCosts } from '../utils.js';
 
 let topChart, rvcChart;
 
@@ -135,14 +135,12 @@ export function exportExcel() {
   });
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([prodHeader, ...prodRows]), 'Sản phẩm');
 
-  // Sheet 2b — Shipments
+  // Sheet 2b — Shipments (5-cost breakdown + landed cost + profit)
   if (shipments.length) {
-    const shipHeader = ['Mã lô', 'Tên', 'Ngày', 'Ship Mỹ (/lb)', 'Ship US→VN (/lb)', 'SP trong lô', 'Tổng cân (lb)', 'Tổng phí ship'];
+    const shipHeader = ['Mã lô', 'Tên', 'Ngày', 'Nhập hàng', 'Đóng gói', 'Ship nội địa', 'Bảo hiểm', 'Ship quốc tế', 'Giá vốn', 'Giá bán', 'Lợi nhuận'];
     const shipRows = shipments.map(s => {
-      const items = products.filter(p => p.shipmentId === s.id);
-      const totalWeight = items.reduce((acc, p) => acc + (+p.weight || 0) * (+p.quantity || 0), 0);
-      const totalCost = totalWeight * ((+s.usDomesticRate || 0) + (+s.intlRate || 0));
-      return [s.code, s.name, s.date, +s.usDomesticRate || 0, +s.intlRate || 0, items.length, totalWeight, totalCost];
+      const c = computeShipmentCosts(s);
+      return [s.code, s.name, s.date, c.purchase, c.packaging, c.domestic, c.insurance, c.intl, c.landed, c.sell, c.profit];
     });
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([shipHeader, ...shipRows]), 'Lô hàng');
   }

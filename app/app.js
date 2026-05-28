@@ -117,7 +117,7 @@ function bindGlobalUI() {
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
     if (e.ctrlKey && e.key.toLowerCase() === 'k') {
       e.preventDefault();
-      document.querySelector('#btnAddProduct, #btnAddProductDash')?.click();
+      document.querySelector('#btnAddShipmentDash, #btnAddShipment, #btnAddProduct')?.click();
     }
     if (e.ctrlKey && e.key.toLowerCase() === 'e') {
       e.preventDefault();
