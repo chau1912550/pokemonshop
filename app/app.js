@@ -6,8 +6,6 @@ import './modal.js';
 import { initDashboard, renderDashboard } from './pages/dashboard.js';
 import { initProducts, renderProductsPage } from './pages/products.js';
 import { initShipments, renderShipmentsPage } from './pages/shipments.js';
-import { initExpenses, renderExpensesPage } from './pages/expenses.js';
-import { initOrders, renderOrdersPage } from './pages/orders.js';
 import { initReports, renderReportsPage, exportExcel } from './pages/reports.js';
 import { initSettings, renderSettingsPage } from './pages/settings.js';
 import { initNotebook, renderNotebookPage } from './pages/notebook.js';
@@ -16,8 +14,6 @@ const PAGES = {
   dashboard: renderDashboard,
   products: renderProductsPage,
   shipments: renderShipmentsPage,
-  expenses: renderExpensesPage,
-  orders: renderOrdersPage,
   reports: renderReportsPage,
   notebook: renderNotebookPage,
   settings: renderSettingsPage,
@@ -139,8 +135,6 @@ function init() {
   initDashboard();
   initProducts();
   initShipments();
-  initExpenses();
-  initOrders();
   initReports();
   initNotebook();
   initSettings();

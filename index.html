@@ -45,14 +45,6 @@
           <svg viewBox="0 0 24 24" fill="none"><path d="M1 12h11v6H1zM12 8h5l4 4v6h-9V8zM5.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM16.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
           <span>Lô hàng</span>
         </a>
-        <a class="nav-item" data-route="expenses" href="#expenses">
-          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span>Chi phí</span>
-        </a>
-        <a class="nav-item" data-route="orders" href="#orders">
-          <svg viewBox="0 0 24 24" fill="none"><path d="M9 5H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2h-4M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 14h6M9 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span>Đơn hàng</span>
-        </a>
         <a class="nav-item" data-route="reports" href="#reports">
           <svg viewBox="0 0 24 24" fill="none"><path d="M3 21h18M5 21V10m4 11V7m4 14V13m4 8V4m4 17v-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <span>Báo cáo</span>
@@ -265,75 +257,6 @@
                 </tr>
               </thead>
               <tbody id="shipmentsBody"></tbody>
-            </table>
-          </div>
-        </section>
-      </section>
-
-      <!-- ===== EXPENSES PAGE ===== -->
-      <section class="page" data-page="expenses" hidden>
-        <header class="page-header">
-          <h1 class="page-title">Chi phí</h1>
-          <div class="page-header-actions">
-            <button class="btn btn-primary" id="btnAddExpense">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-              Thêm chi phí
-            </button>
-          </div>
-        </header>
-        <div class="kpi-grid kpi-grid-4" id="expenseKpis"></div>
-        <section class="card">
-          <header class="card-head">
-            <h2 class="card-title">Danh sách chi phí</h2>
-          </header>
-          <div class="exp-filter-bar" id="expenseShipFilter"></div>
-          <div class="table-wrap">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Ngày</th>
-                  <th>Phân loại</th>
-                  <th>Mô tả</th>
-                  <th>Lô hàng</th>
-                  <th class="num">Số tiền</th>
-                  <th class="num">Hành động</th>
-                </tr>
-              </thead>
-              <tbody id="expensesBody"></tbody>
-            </table>
-          </div>
-        </section>
-      </section>
-
-      <!-- ===== ORDERS PAGE ===== -->
-      <section class="page" data-page="orders" hidden>
-        <header class="page-header">
-          <h1 class="page-title">Đơn hàng</h1>
-          <div class="page-header-actions">
-            <button class="btn btn-primary" id="btnAddOrder">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-              Thêm đơn hàng
-            </button>
-          </div>
-        </header>
-        <div class="kpi-grid kpi-grid-4" id="orderKpis"></div>
-        <section class="card">
-          <header class="card-head"><h2 class="card-title">Danh sách đơn hàng</h2></header>
-          <div class="table-wrap">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Mã đơn</th>
-                  <th>Ngày</th>
-                  <th>Khách hàng</th>
-                  <th>Sản phẩm</th>
-                  <th class="num">SL</th>
-                  <th class="num">Doanh thu</th>
-                  <th>Trạng thái</th>
-                  <th class="num">Hành động</th>
-                </tr>
-              </thead>
-              <tbody id="ordersBody"></tbody>
             </table>
           </div>
         </section>
